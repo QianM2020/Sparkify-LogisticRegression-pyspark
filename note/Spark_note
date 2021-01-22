@@ -1,0 +1,51 @@
+Spark Note
+
+Memory is expensive and ephemeral,memory and CPU aren't the bottleneck, instead
+the storage and network.
+
+If a dataset is larger than the size of your RAM, might still be able to analyze
+the data on a single computer. By default, the Python pandas library will read in
+an entire dataset from disk into memory. If the dataset is larger than computer's
+memory, the program won't work. The Python pandas library can read in a file in smaller chunks.
+    https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-chunking
+      with pd.read_csv("tmp.sv", sep="|", chunksize=4) as reader:
+      .....:     reader
+      .....:     for chunk in reader:
+      .....:         print(chunk)
+
+Hadoop - an ecosystem of tools for big data storage and data analysis.
+Hadoop writes intermediate results to disk whereas Spark tries to keep data in memory whenever possible.
+  Hadoop MapReduce - a system for processing and analyzing large data sets in parallel.
+    MapReduce technique for manipulating large data sets:
+      1. Map: each data is analyzed and converted into a (key, value) pair.
+      2. Shuffle: key-value pairs are shuffled across the cluster so that all keys are on the same machine.
+      3. Reduce: the values with the same keys are combined together
+ python implement: 'mapreduce_practice.ipynb'
+  Hadoop YARN - a resource manager that schedules jobs across a cluster.
+  Hadoop Distributed File System (HDFS) - a big data storage system that splits
+    data into chunks and stores the chunks across a cluster of computers.
+    can but not have to use Spark on top of HDFS. Spark can read in data from other sources as well such as Amazon S3.
+  Apache Pig / Apache Hive- SQL-like language that runs on top of Hadoop MapReduce.
+
+Spark modes:
+local mode
+cluster mode(standalone, mesos,yarn)
+
+Spark limitation:
+ Spark only supports algorithms that scale linearly with the input data size.
+ In general, deep learning is not available either.
+
+pyspark
+Spark DAG
+
+Reading and Writing Data with Spark: 'data_inputs_and_outputs.ipynb'
+Data Wrangling:  'data_wrangling.ipynb'
+  select(): returns a new DataFrame with the selected columns
+  filter(): filters rows using the given condition
+  where(): is just an alias for filter()
+  groupBy(): groups the DataFrame using the specified columns, aggregation.
+  sort(): returns a new DataFrame sorted by the specified column(s).
+  dropDuplicates(): returns a new DataFrame with unique rows
+  withColumn(): adding a column or replacing the existing column
+https://spark.apache.org/docs/latest/api/python/index.html
+Spark SQL: 'spark_sql_quiz_solution.ipynb'
