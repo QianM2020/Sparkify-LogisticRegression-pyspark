@@ -32,12 +32,6 @@ def load_data(database_filepath):
     '''
     The function creates a Spark session and loads the dataset from the json file into spark.
     '''
-    # create a Spark session
-    spark = SparkSession.builder \
-        .master("local") \
-        .appName("sparkify") \
-        .getOrCreate()
-
     df = spark.read.json(database_filepath) # database_filepath = "mini_sparkify_event_data.json"
     return df
     pass
@@ -103,8 +97,8 @@ def explore_data(df):
     df.groupby('Churn').avg('time_gap').show()
 
     # display the paid usage (average of 'chgrd')distribution between cancled users and noncancled users
-    print('\n 3 Usage paid usage Distribution \n')
-    df.groupby('Churn').avg('chgrd').show()
+    #print('\n 3 Usage paid usage Distribution \n')
+    #df.groupby('Churn').avg('chgrd').show()
 
     pass
 
@@ -116,8 +110,11 @@ def feature_engi(df):
     #Combine the gender, usage time, and paid usage columns into a vector
     assembler = VectorAssembler(inputCols=["sex","time_gap","chgrd"], outputCol="NumFeatures")
     df = assembler.transform(df)
+    pca = PCA(k=2, inputCol="NumFeatures", outputCol="pca") # k is the number of dims
+    model = pca.fit(df)
+    df = model.transform(df)
     #Scale the Vectors
-    scaler = StandardScaler(inputCol="NumFeatures", outputCol="features",withMean=True, withStd=False)
+    scaler = StandardScaler(inputCol="pca", outputCol="features",withMean=True, withStd=False)
     scalerModel = scaler.fit(df)
     df = scalerModel.transform(df)
     return df
@@ -143,6 +140,21 @@ def build_model():
                               numFolds=3)
     return crossval
     pass
+
+def getBestParam(cvModel):
+    '''
+    The function gets the best parameter of cvModel
+    '''
+    params = cvModel.getEstimatorParamMaps()
+    avgMetrics = cvModel.avgMetrics
+
+    all_params = list(zip(params, avgMetrics))
+    best_param = sorted(all_params, key=lambda x: x[1], reverse=True)[0]
+    return best_param
+
+best_param = getBestParam(cvmodel)[0]
+for p, v in best_param.items():
+	print("{} : {}".format(p.name, v))
 
 def evaluate_model(model, validation):
     '''
@@ -171,6 +183,12 @@ def main():
     '''
     The main() function combines and executes all the above modules.
     '''
+    # create a Spark session
+    spark = SparkSession.builder \
+        .master("local") \
+        .appName("sparkify") \
+        .getOrCreate()
+
     database_filepath, model_filepath = sys.argv[1:]
     print('Loading data...\n    DATABASE: {}'.format(database_filepath))
     df = load_data(database_filepath)
