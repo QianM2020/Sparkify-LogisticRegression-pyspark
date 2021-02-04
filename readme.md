@@ -43,3 +43,9 @@
     # Summary and Report
       you can find more details about analysis and discussion about the project in 'Report.docx'
       or on CSDN Blog Post: https://blog.csdn.net/QianMeng2020/article/details/113027411
+
+#Update (Feb.03.2021)
+	Add data visualization plots to describe situation of the dataset
+	Explain the reasons why choose logistic regression model, and parameters selection in the blog.(https://blog.csdn.net/QianMeng2020/article/details/113027411)
+	Modify the code of 'training-test dataset split'. The seed is added to make the training-test dataset reproducible.
+	Add detailed discussion about the result in the blog.
